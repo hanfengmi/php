@@ -159,6 +159,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
           $('.header-shopping').on('click', '.checkout', function(){
             var shopingList = JSON.parse(localStorage.getItem("shopCar")) || [];
+            var cheack = true;
             // var userId = $('.header-user-info').find('.user-info').attr('data-id');
             var pidArr = [];
             var qtyArr = [];
@@ -167,47 +168,53 @@ defined('BASEPATH') OR exit('No direct script access allowed');
               pidArr.push(e.pid);
               qtyArr.push(e.num);
               total += Number(e.price)*(e.num);
-            })
-            $.ajax({
-              type: "post",
-              data: {
-                pid: pidArr.join('-'),
-                qty: qtyArr.join('-')
-              },
-              url: "./Orders/CreateOrder",
-              dataType: 'json',
-              beforeSend: function() {
-                $('.pay-loading').show();
-                // console.log(123123)
-              },
-              success: function(data) {
-                if(data.status == 2){
-                  $('.paypal-form').html(
-                  `
-                  <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post">
-                    <input type="hidden" name="cmd" value="_cart">
-                    <input type="hidden" name="upload" value="1">
-                    <input type="hidden" name="business" value="thea-facilitator@163.com">
-
-                    <input type="hidden" name="item_name_1" value=${data.data.pid}>
-                    <input type="hidden" name="amount_1" value="${total.toFixed(2)}">
-                    
-                    <input class="submit" type="submit" value="PayPal">
-                    <input type="hidden" name="return" value="http://47.98.195.42/php/myOrder">
-                  </form>
-                  `)
-
-                  setTimeout(function(){
-                    $('.paypal-form').find('.submit').click();
-                  }, 50);
-
-                }
-                
-              },
-              error: function() {
-                alert("ajax error");
+              if(e.num <=0){
+                alert('数量不对');
+                cheack = false
               }
-            });
+            })
+            if(cheack){
+              $.ajax({
+                type: "post",
+                data: {
+                  pid: pidArr.join('-'),
+                  qty: qtyArr.join('-')
+                },
+                url: "./Orders/CreateOrder",
+                dataType: 'json',
+                beforeSend: function() {
+                  $('.pay-loading').show();
+                  // console.log(123123)
+                },
+                success: function(data) {
+                  if(data.status == 2){
+                    $('.paypal-form').html(
+                    `
+                    <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post">
+                      <input type="hidden" name="cmd" value="_cart">
+                      <input type="hidden" name="upload" value="1">
+                      <input type="hidden" name="business" value="thea-facilitator@163.com">
+  
+                      <input type="hidden" name="item_name_1" value=${data.data.pid}>
+                      <input type="hidden" name="amount_1" value="${total.toFixed(2)}">
+                      
+                      <input class="submit" type="submit" value="PayPal">
+                      <input type="hidden" name="return" value="http://47.98.195.42/php/myOrder">
+                    </form>
+                    `)
+  
+                    setTimeout(function(){
+                      $('.paypal-form').find('.submit').click();
+                    }, 50);
+  
+                  }
+                  
+                },
+                error: function() {
+                  alert("ajax error");
+                }
+              });
+            }
           })
         }
         
