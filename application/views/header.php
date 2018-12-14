@@ -184,7 +184,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 dataType: 'json',
                 beforeSend: function() {
                   $('.pay-loading').show();
-                  // console.log(123123)
                 },
                 success: function(data) {
                   if(data.status == 2){
